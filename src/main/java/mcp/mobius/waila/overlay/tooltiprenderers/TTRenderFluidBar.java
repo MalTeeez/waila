@@ -23,6 +23,7 @@ import gtPlusPlus.core.util.minecraft.FluidUtils;
 import mcp.mobius.waila.api.IWailaCommonAccessor;
 import mcp.mobius.waila.api.IWailaVariableWidthTooltipRenderer;
 import mcp.mobius.waila.api.impl.ConfigHandler;
+import mcp.mobius.waila.cbcore.LangUtil;
 import mcp.mobius.waila.overlay.DisplayUtil;
 import mcp.mobius.waila.overlay.OverlayConfig;
 
@@ -72,6 +73,12 @@ public class TTRenderFluidBar implements IWailaVariableWidthTooltipRenderer {
         String localizedName = params[1];
         double amount = Double.parseDouble(params[2]);
         double capacity = Double.parseDouble(params[3]);
+        boolean isEmpty = fluidName.equals("EMPTYFLUID") && localizedName.equals("EMPTYFLUID");
+        if (isEmpty) {
+            fluidName = "water";
+            localizedName = "";
+            amount = 0;
+        }
 
         drawThickBeveledBox(0, 0, maxStringW, 12, 1, 0xFF505050, 0xFF505050, -1);
 
@@ -98,18 +105,31 @@ public class TTRenderFluidBar implements IWailaVariableWidthTooltipRenderer {
                 icon.getMinU() + ((icon.getMaxU() - icon.getMinU()) * ((double) i / 10D)),
                 icon.getMaxV());
 
-        DisplayUtil.drawString(
-                formatNumber.apply((int) amount) + " / "
-                        + formatNumber.apply((int) capacity)
-                        + " "
-                        + ConfigHandler.instance().fluidUnit
-                        + " "
-                        + localizedName,
-                2,
-                2,
-                OverlayConfig.fontcolor,
-                true);
-
+        if (!isEmpty) {
+            DisplayUtil.drawString(
+                    formatNumber.apply((int) amount) + " / "
+                            + formatNumber.apply((int) capacity)
+                            + " "
+                            + ConfigHandler.instance().fluidUnit
+                            + " "
+                            + localizedName,
+                    2,
+                    2,
+                    OverlayConfig.fontcolor,
+                    true);
+        } else {
+            DisplayUtil.drawString(
+                    LangUtil.translateG("hud.msg.empty").replace("<", "").replace(">", "") + " / "
+                            + formatNumber.apply((int) capacity)
+                            + " "
+                            + ConfigHandler.instance().fluidUnit
+                            + " "
+                            + localizedName,
+                    2,
+                    2,
+                    0xFF9D9D9D, // Important at merge with lighter color PR
+                    true);
+        }
     }
 
     public static void drawTexturedModelRectFromIcon(int x, int y, IIcon icon, int width, int height, double z) {
