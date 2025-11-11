@@ -78,48 +78,47 @@ public class TTRenderFluidBar implements IWailaVariableWidthTooltipRenderer {
         double capacity = Double.parseDouble(params[3]);
         Tessellator tessellator = Tessellator.instance;
         boolean isEmpty = fluidName.equals("EMPTYFLUID") && localizedName.equals("EMPTYFLUID");
-        if (isEmpty) {
-            fluidName = "water";
-            localizedName = "";
-            amount = 0;
-        }
-
-        IIcon icon = FluidRegistry.getFluid(fluidName).getIcon();
 
         Minecraft mc = Minecraft.getMinecraft();
-        mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+        if (!isEmpty) {
+            IIcon icon = FluidRegistry.getFluid(fluidName).getIcon();
+            bindColor.accept(fluidName);
 
-        bindColor.accept(fluidName);
-
-        tessellator.startDrawingQuads();
-        // Intentionally draw 2 pixels taller than needed than cover with the border to make the texture more visible
-        int i = (int) ((double) (maxStringW - 2) * amount / capacity);
-        int j = 0;
-        for (; i > height; i = i - height) {
-            drawRectFromIcon(tessellator, 1 + (j * height), 0, 0, icon, height, height);
-            j++;
+            mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+            tessellator.startDrawingQuads();
+            // Intentionally draw 2 pixels taller than needed than cover with the border to make the texture more visible
+            int i = (int) ((double) (maxStringW - 2) * amount / capacity);
+            int j = 0;
+            for (; i > height; i = i - height) {
+                drawRectFromIcon(tessellator, 1 + (j * height), 0, 0, icon, height, height);
+                j++;
+            }
+            if (i > 0) drawRect(
+                    tessellator,
+                    1 + (j * height),
+                    0,
+                    0,
+                    i,
+                    height,
+                    icon.getMinU(),
+                    icon.getMinV(),
+                    icon.getMinU() + ((icon.getMaxU() - icon.getMinU()) * ((double) i / height)),
+                    icon.getMaxV());
+            tessellator.draw();
         }
-        if (i > 0) drawRect(
-                tessellator,
-                1 + (j * height),
-                0,
-                0,
-                i,
-                height,
-                icon.getMinU(),
-                icon.getMinV(),
-                icon.getMinU() + ((icon.getMaxU() - icon.getMinU()) * ((double) i / height)),
-                icon.getMaxV());
-        tessellator.draw();
 
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glColor4f(1F, 1F, 1F, 0.70F);
-        mc.getTextureManager().bindTexture(gradient);
-        tessellator.startDrawingQuads();
-        drawRect(tessellator, 1, 0, 0, maxStringW - 2, height - 1, 0, 0, 1, 1);
-        tessellator.draw();
+        if (!isEmpty) {
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glColor4f(1F, 1F, 1F, 0.55F);
+            mc.getTextureManager().bindTexture(gradient);
+            tessellator.startDrawingQuads();
+            drawRect(tessellator, 1, 0, 0, maxStringW - 2, height - 1, 0, 0, 1, 1);
+            tessellator.draw();
+        } else {
+            Gui.drawRect(1, 0, maxStringW - 1, height - 1, 0x1A575656);
+        }
 
-        drawThickBeveledBox(0, 0, maxStringW, height, 1, 0xFF505050, 0xFF505050, -1);
+        drawThickBeveledBox(0, 0, maxStringW, height, 1, 0xFF787878, 0xFF787878, -1);
 
         if (!isEmpty) {
             DisplayUtil.drawString(
@@ -138,12 +137,10 @@ public class TTRenderFluidBar implements IWailaVariableWidthTooltipRenderer {
                     LangUtil.translateG("hud.msg.empty").replace("<", "").replace(">", "") + " / "
                             + formatNumber.apply((int) capacity)
                             + " "
-                            + ConfigHandler.instance().fluidUnit
-                            + " "
-                            + localizedName,
+                            + ConfigHandler.instance().fluidUnit,
                     2,
                     2,
-                    0xFF9D9D9D,
+                    0xFFDDDDDD,
                     true);
         }
     }
