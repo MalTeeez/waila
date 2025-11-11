@@ -82,11 +82,12 @@ public class TTRenderFluidBar implements IWailaVariableWidthTooltipRenderer {
         Minecraft mc = Minecraft.getMinecraft();
         if (!isEmpty) {
             IIcon icon = FluidRegistry.getFluid(fluidName).getIcon();
+            mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
             bindColor.accept(fluidName);
 
-            mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
             tessellator.startDrawingQuads();
-            // Intentionally draw 2 pixels taller than needed than cover with the border to make the texture more visible
+            // Intentionally draw 2 pixels taller than needed than cover with the border to make the texture more
+            // visible
             int i = (int) ((double) (maxStringW - 2) * amount / capacity);
             int j = 0;
             for (; i > height; i = i - height) {
