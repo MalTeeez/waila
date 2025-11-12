@@ -33,7 +33,7 @@ public class TTRenderFluidBar implements IWailaVariableWidthTooltipRenderer {
 
     private final Consumer<String> bindColor;
     private final Function<Integer, String> formatNumber;
-    final int height = 12;
+    private static final int height = 12;
 
     public TTRenderFluidBar() {
         if (Loader.isModLoaded("gregtech")) {
@@ -83,7 +83,7 @@ public class TTRenderFluidBar implements IWailaVariableWidthTooltipRenderer {
         return new Dimension(DisplayUtil.getDisplayWidth(barText) + 4, height);
     }
 
-    public static ResourceLocation gradient = new ResourceLocation("waila", "textures/gradient.png");
+    public static final ResourceLocation gradient = new ResourceLocation("waila", "textures/gradient.png");
 
     @Override
     public void draw(String[] params, IWailaCommonAccessor accessor) {
